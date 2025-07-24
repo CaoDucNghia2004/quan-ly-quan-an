@@ -10,25 +10,41 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    UpdateEmployeeAccountBody,
-    UpdateEmployeeAccountBodyType,
-} from "@/schemaValidations/account.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
+} from "@/components/ui/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Switch } from "@/components/ui/switch";
-import { useGetAccount, useUpdateAccountMutation } from "@/queries/useAccount";
-import { useUploadMediaMutation } from "@/queries/useMedia";
-import { toast } from "sonner";
-import { handleErrorApi } from "@/lib/utils";
 
-export default function EditEmployee({
+import { getVietnameseDishStatus, handleErrorApi } from "@/lib/utils";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    UpdateDishBody,
+    UpdateDishBodyType,
+} from "@/schemaValidations/dish.schema";
+import { DishStatus, DishStatusValues } from "@/constants/type";
+import { Textarea } from "@/components/ui/textarea";
+import { useUploadMediaMutation } from "@/queries/useMedia";
+import { useGetDishQuery, useUpdateDishMutation } from "@/queries/useDish";
+import { toast } from "sonner";
+
+export default function EditDish({
     id,
     setId,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onSubmitSuccess,
 }: {
     id?: number | undefined;
@@ -36,56 +52,50 @@ export default function EditEmployee({
     onSubmitSuccess?: () => void;
 }) {
     const [file, setFile] = useState<File | null>(null);
-    const avatarInputRef = useRef<HTMLInputElement | null>(null);
-
-    const { data } = useGetAccount({
-        id: id as number,
-        enabled: Boolean(id),
-    });
-    const updateAccountMutation = useUpdateAccountMutation();
+    const imageInputRef = useRef<HTMLInputElement | null>(null);
     const uploadMediaMutation = useUploadMediaMutation();
-
-    const form = useForm<UpdateEmployeeAccountBodyType>({
-        resolver: zodResolver(UpdateEmployeeAccountBody),
+    const updateDishMutation = useUpdateDishMutation();
+    const { data } = useGetDishQuery({
+        enabled: Boolean(id),
+        id: id as number,
+    });
+    const form = useForm<UpdateDishBodyType>({
+        resolver: zodResolver(UpdateDishBody),
         defaultValues: {
             name: "",
-            email: "",
-            avatar: undefined,
-            password: undefined,
-            confirmPassword: undefined,
-            changePassword: false,
+            description: "",
+            price: 0,
+            image: undefined,
+            status: DishStatus.Unavailable,
         },
     });
-    const avatar = form.watch("avatar");
+    const image = form.watch("image");
     const name = form.watch("name");
-    const changePassword = form.watch("changePassword");
     const previewAvatarFromFile = useMemo(() => {
         if (file) {
             return URL.createObjectURL(file);
         }
-        return avatar;
-    }, [file, avatar]);
+        return image;
+    }, [file, image]);
 
     useEffect(() => {
         if (data) {
-            const { name, avatar, email } = data.payload.data;
-            console.log(avatar);
+            const { name, image, description, price, status } =
+                data.payload.data;
             form.reset({
                 name,
-                avatar: avatar ?? undefined,
-                email,
-                changePassword: form.getValues("changePassword"),
-                password: form.getValues("password"),
-                confirmPassword: form.getValues("confirmPassword"),
+                image: image ?? undefined,
+                description,
+                price,
+                status,
             });
         }
     }, [data, form]);
 
-    const onSubmit = async (values: UpdateEmployeeAccountBodyType) => {
-        console.log(1);
-        if (updateAccountMutation.isPending) return;
+    const onSubmit = async (values: UpdateDishBodyType) => {
+        if (updateDishMutation.isPending) return;
         try {
-            let body: UpdateEmployeeAccountBodyType & { id: number } = {
+            let body: UpdateDishBodyType & { id: number } = {
                 id: id as number,
                 ...values,
             };
@@ -98,10 +108,10 @@ export default function EditEmployee({
                 const imageUrl = uploadImageResult.payload.data;
                 body = {
                     ...body,
-                    avatar: imageUrl,
+                    image: imageUrl,
                 };
             }
-            const result = await updateAccountMutation.mutateAsync(body);
+            const result = await updateDishMutation.mutateAsync(body);
             toast(result.payload.message);
             reset();
             // onSubmitSuccess && onSubmitSuccess();
@@ -120,7 +130,6 @@ export default function EditEmployee({
         setId(undefined);
         setFile(null);
     };
-
     return (
         <Dialog
             open={Boolean(id)}
@@ -132,16 +141,16 @@ export default function EditEmployee({
         >
             <DialogContent className="sm:max-w-[600px] max-h-screen overflow-auto">
                 <DialogHeader>
-                    <DialogTitle>Cập nhật tài khoản</DialogTitle>
+                    <DialogTitle>Cập nhật món ăn</DialogTitle>
                     <DialogDescription>
-                        Các trường tên, email, mật khẩu là bắt buộc
+                        Các trường sau đây là bắ buộc: Tên, ảnh
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
                     <form
                         noValidate
                         className="grid auto-rows-max items-start gap-4 md:gap-8"
-                        id="edit-employee-form"
+                        id="edit-dish-form"
                         onSubmit={form.handleSubmit(onSubmit, (e) =>
                             console.log(e)
                         )}
@@ -149,7 +158,7 @@ export default function EditEmployee({
                         <div className="grid gap-4 py-4">
                             <FormField
                                 control={form.control}
-                                name="avatar"
+                                name="image"
                                 render={({ field }) => (
                                     <FormItem>
                                         <div className="flex gap-2 items-start justify-start">
@@ -164,7 +173,7 @@ export default function EditEmployee({
                                             <input
                                                 type="file"
                                                 accept="image/*"
-                                                ref={avatarInputRef}
+                                                ref={imageInputRef}
                                                 onChange={(e) => {
                                                     const file =
                                                         e.target.files?.[0];
@@ -182,7 +191,7 @@ export default function EditEmployee({
                                                 className="flex aspect-square w-[100px] items-center justify-center rounded-md border border-dashed"
                                                 type="button"
                                                 onClick={() =>
-                                                    avatarInputRef.current?.click()
+                                                    imageInputRef.current?.click()
                                                 }
                                             >
                                                 <Upload className="h-4 w-4 text-muted-foreground" />
@@ -201,7 +210,9 @@ export default function EditEmployee({
                                 render={({ field }) => (
                                     <FormItem>
                                         <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                                            <Label htmlFor="name">Tên</Label>
+                                            <Label htmlFor="name">
+                                                Tên món ăn
+                                            </Label>
                                             <div className="col-span-3 w-full space-y-2">
                                                 <Input
                                                     id="name"
@@ -216,14 +227,36 @@ export default function EditEmployee({
                             />
                             <FormField
                                 control={form.control}
-                                name="email"
+                                name="price"
                                 render={({ field }) => (
                                     <FormItem>
                                         <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                                            <Label htmlFor="email">Email</Label>
+                                            <Label htmlFor="price">Giá</Label>
                                             <div className="col-span-3 w-full space-y-2">
                                                 <Input
-                                                    id="email"
+                                                    id="price"
+                                                    className="w-full"
+                                                    {...field}
+                                                    type="number"
+                                                />
+                                                <FormMessage />
+                                            </div>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <div className="grid grid-cols-4 items-center justify-items-start gap-4">
+                                            <Label htmlFor="description">
+                                                Mô tả sản phẩm
+                                            </Label>
+                                            <div className="col-span-3 w-full space-y-2">
+                                                <Textarea
+                                                    id="description"
                                                     className="w-full"
                                                     {...field}
                                                 />
@@ -235,79 +268,55 @@ export default function EditEmployee({
                             />
                             <FormField
                                 control={form.control}
-                                name="changePassword"
+                                name="status"
                                 render={({ field }) => (
                                     <FormItem>
                                         <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                                            <Label htmlFor="email">
-                                                Đổi mật khẩu
+                                            <Label htmlFor="description">
+                                                Trạng thái
                                             </Label>
                                             <div className="col-span-3 w-full space-y-2">
-                                                <Switch
-                                                    checked={field.value}
-                                                    onCheckedChange={
+                                                <Select
+                                                    onValueChange={
                                                         field.onChange
                                                     }
-                                                />
-                                                <FormMessage />
+                                                    defaultValue={field.value}
+                                                    value={field.value}
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Chọn trạng thái" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        {DishStatusValues.map(
+                                                            (status) => (
+                                                                <SelectItem
+                                                                    key={status}
+                                                                    value={
+                                                                        status
+                                                                    }
+                                                                >
+                                                                    {getVietnameseDishStatus(
+                                                                        status
+                                                                    )}
+                                                                </SelectItem>
+                                                            )
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
                                             </div>
+
+                                            <FormMessage />
                                         </div>
                                     </FormItem>
                                 )}
                             />
-                            {changePassword && (
-                                <FormField
-                                    control={form.control}
-                                    name="password"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                                                <Label htmlFor="password">
-                                                    Mật khẩu mới
-                                                </Label>
-                                                <div className="col-span-3 w-full space-y-2">
-                                                    <Input
-                                                        id="password"
-                                                        className="w-full"
-                                                        type="password"
-                                                        {...field}
-                                                    />
-                                                    <FormMessage />
-                                                </div>
-                                            </div>
-                                        </FormItem>
-                                    )}
-                                />
-                            )}
-                            {changePassword && (
-                                <FormField
-                                    control={form.control}
-                                    name="confirmPassword"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                                                <Label htmlFor="confirmPassword">
-                                                    Xác nhận mật khẩu mới
-                                                </Label>
-                                                <div className="col-span-3 w-full space-y-2">
-                                                    <Input
-                                                        id="confirmPassword"
-                                                        className="w-full"
-                                                        type="password"
-                                                        {...field}
-                                                    />
-                                                    <FormMessage />
-                                                </div>
-                                            </div>
-                                        </FormItem>
-                                    )}
-                                />
-                            )}
                         </div>
                     </form>
                 </Form>
                 <DialogFooter>
-                    <Button type="submit" form="edit-employee-form">
+                    <Button type="submit" form="edit-dish-form">
                         Lưu
                     </Button>
                 </DialogFooter>
