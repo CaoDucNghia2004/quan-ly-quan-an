@@ -44,7 +44,7 @@ import { toast } from "sonner";
 export default function EditDish({
     id,
     setId,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     onSubmitSuccess,
 }: {
     id?: number | undefined;
