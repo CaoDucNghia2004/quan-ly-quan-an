@@ -14,6 +14,9 @@ export default function RefreshToken() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let interval: any = null;
 
+        //Gọi lần đầu: để check ngay lập tức khi component vừa load (tránh delay).
+        //  Gọi lần 2 trở đi (setInterval): để check liên tục mỗi giây trong suốt thời gian người dùng online.
+        //Nếu không gọi lần đầu, có nguy cơ bị lỗi do access token hết hạn đúng lúc load trang.
         // Phải gọi lần đầu tiên, vì interval sẽ chạy sau thời gian TIMEOUT
         checkAndRefreshToken({
             onError: () => {
