@@ -16,6 +16,7 @@ export default async function Home() {
         return <div>Something went wrong</div>;
     }
 
+    // console.log("dishList", dishList);
     return (
         <div className="w-full space-y-4">
             <section className="relative z-10">

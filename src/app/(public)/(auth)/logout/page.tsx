@@ -13,7 +13,7 @@ function Logout() {
     // const logoutMutation = useLogoutMutation()
     const { mutateAsync } = useLogoutMutation();
     const router = useRouter();
-    const { setIsAuth } = useAppContext();
+    const { setRole } = useAppContext();
     const searchParams = useSearchParams();
     const refreshTokenFromUrl = searchParams.get("refreshToken");
     const accessTokenFromUrl = searchParams.get("accessToken");
@@ -39,7 +39,7 @@ function Logout() {
                 router.push("/login");
             });
         } else {
-            setIsAuth(false);
+            setRole();
             router.push("/");
         }
         // // Nếu đã gọi logout trước đó rồi thì không gọi lại nữa
@@ -51,13 +51,7 @@ function Logout() {
         //     }, 1000);
         //     router.push("/login");
         // });
-    }, [
-        mutateAsync,
-        router,
-        refreshTokenFromUrl,
-        accessTokenFromUrl,
-        setIsAuth,
-    ]);
+    }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setRole]);
     return <div>Log out ....</div>;
 }
 

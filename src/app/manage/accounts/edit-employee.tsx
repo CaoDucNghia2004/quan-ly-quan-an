@@ -40,7 +40,7 @@ export default function EditEmployee({
 
     const { data } = useGetAccount({
         id: id as number,
-        enabled: Boolean(id),
+        enabled: Boolean(id), // kiểm tra xem id có tồn tại hay không, nếu không thì không gọi API
     });
     const updateAccountMutation = useUpdateAccountMutation();
     const uploadMediaMutation = useUploadMediaMutation();
@@ -69,7 +69,7 @@ export default function EditEmployee({
     useEffect(() => {
         if (data) {
             const { name, avatar, email } = data.payload.data;
-            console.log(avatar);
+            // console.log(avatar);
             form.reset({
                 name,
                 avatar: avatar ?? undefined,
@@ -82,7 +82,7 @@ export default function EditEmployee({
     }, [data, form]);
 
     const onSubmit = async (values: UpdateEmployeeAccountBodyType) => {
-        console.log(1);
+        // console.log(1);
         if (updateAccountMutation.isPending) return;
         try {
             let body: UpdateEmployeeAccountBodyType & { id: number } = {
