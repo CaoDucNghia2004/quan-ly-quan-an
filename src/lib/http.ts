@@ -86,7 +86,7 @@ const request = async <Response>(
                   "Content-Type": "application/json",
               };
     if (isClient) {
-        const accessToken = getAccessTokenFromLocalStorage;
+        const accessToken = getAccessTokenFromLocalStorage();
         if (accessToken) {
             baseHeaders.Authorization = `Bearer ${accessToken}`;
         }

@@ -1,28 +1,55 @@
 "use client";
 
 import { useAppContext } from "@/components/app-provider";
+import { Role } from "@/constants/type";
+import { cn, handleErrorApi } from "@/lib/utils";
+import { useLogoutMutation } from "@/queries/useAuth";
+import { RoleType } from "@/types/jwt.types";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-const menuItems = [
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+const menuItems: {
+    title: string;
+    href: string;
+    role?: RoleType[];
+    hideWhenLogin?: boolean;
+}[] = [
     {
-        title: "Món ăn",
-        href: "/menu", //authRequired: undefined nghĩa là đăng nhập hay chưa đều hiển thị
+        title: "Trang chủ",
+        href: "/",
+    },
+    {
+        title: "Menu",
+        href: "/guest/menu",
+        role: [Role.Guest],
     },
     {
         title: "Đơn hàng",
-        href: "/orders",
-        authRequired: true,
+        href: "/guest/orders",
+        role: [Role.Guest],
     },
     {
         title: "Đăng nhập",
         href: "/login",
-        authRequired: false, // khi false  nghĩa là chưa đăng nhập thì hiển thị
+        hideWhenLogin: true,
     },
     {
         title: "Quản lý",
         href: "/manage/dashboard",
-        authRequired: true, // true nghĩa là đăng nhập rồi mới hiển thị
+        role: [Role.Owner, Role.Employee],
     },
 ];
 
@@ -33,17 +60,70 @@ const menuItems = [
 // server và client nó ko đồng nhất về trạng thái
 
 export default function NavItems({ className }: { className?: string }) {
-    const { isAuth } = useAppContext();
-    return menuItems.map((item) => {
-        if (
-            (item.authRequired === false && isAuth) ||
-            (item.authRequired === true && !isAuth)
-        )
-            return null;
-        return (
-            <Link href={item.href} key={item.href} className={className}>
-                {item.title}
-            </Link>
-        );
-    });
+    const { role, setRole } = useAppContext();
+    const logoutMutation = useLogoutMutation();
+    const router = useRouter();
+
+    const logout = async () => {
+        if (logoutMutation.isPending) return;
+        try {
+            await logoutMutation.mutateAsync();
+            setRole();
+            router.push("/");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            handleErrorApi({
+                error,
+            });
+        }
+    };
+    return (
+        <>
+            {menuItems.map((item) => {
+                // Trường hợp đăng nhập thì chỉ hiển thị menu đăng nhập
+                const isAuth = item.role && role && item.role.includes(role);
+                // Trường hợp menu item có thể hiển thị dù cho đã đăng nhập hay chưa
+                const canShow =
+                    (item.role === undefined && !item.hideWhenLogin) ||
+                    (!role && item.hideWhenLogin);
+                if (isAuth || canShow) {
+                    return (
+                        <Link
+                            href={item.href}
+                            key={item.href}
+                            className={className}
+                        >
+                            {item.title}
+                        </Link>
+                    );
+                }
+                return null;
+            })}
+            {role && (
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <div className={cn(className, "cursor-pointer")}>
+                            Đăng xuất
+                        </div>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Bạn có muốn đăng xuất không?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Việc đăng xuất có thể làm mất đi hóa đơn của bạn
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Thoát</AlertDialogCancel>
+                            <AlertDialogAction onClick={logout}>
+                                OK
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
+        </>
+    );
 }
