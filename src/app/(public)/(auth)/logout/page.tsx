@@ -13,7 +13,7 @@ function Logout() {
     // const logoutMutation = useLogoutMutation()
     const { mutateAsync } = useLogoutMutation();
     const router = useRouter();
-    const { setRole } = useAppContext();
+    const { setRole, disconnectSocket } = useAppContext();
     const searchParams = useSearchParams();
     const refreshTokenFromUrl = searchParams.get("refreshToken");
     const accessTokenFromUrl = searchParams.get("accessToken");
@@ -40,6 +40,7 @@ function Logout() {
             });
         } else {
             setRole();
+            disconnectSocket();
             router.push("/");
         }
         // // Nếu đã gọi logout trước đó rồi thì không gọi lại nữa
@@ -51,7 +52,14 @@ function Logout() {
         //     }, 1000);
         //     router.push("/login");
         // });
-    }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setRole]);
+    }, [
+        mutateAsync,
+        router,
+        refreshTokenFromUrl,
+        accessTokenFromUrl,
+        setRole,
+        disconnectSocket,
+    ]);
     return <div>Log out ....</div>;
 }
 
