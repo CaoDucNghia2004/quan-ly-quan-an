@@ -171,6 +171,13 @@ const request = async <Response>(
                 .data;
             setAccessTokenToLocalStorage(accessToken);
             setRefreshTokenToLocalStorage(refreshToken);
+        } else if ("api/auth/token" === normalizeUrl) {
+            const { accessToken, refreshToken } = payload as {
+                accessToken: string;
+                refreshToken: string;
+            };
+            setAccessTokenToLocalStorage(accessToken);
+            setRefreshTokenToLocalStorage(refreshToken);
         } else if (
             ["api/auth/logout", "api/guest/auth/logout"].includes(normalizeUrl)
         ) {
