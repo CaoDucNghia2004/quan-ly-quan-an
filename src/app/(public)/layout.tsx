@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import DarkModeToggle from "@/components/dark-mode-toggle";
 import NavItems from "@/app/(public)/nav-items";
+import { SwitchLanguage } from "@/components/switch-language";
 
 export default function Layout({
     children,
@@ -63,7 +64,8 @@ export default function Layout({
                         </nav>
                     </SheetContent>
                 </Sheet>
-                <div className="ml-auto">
+                <div className="ml-auto flex items-center gap-4">
+                    <SwitchLanguage />
                     <DarkModeToggle />
                 </div>
             </header>

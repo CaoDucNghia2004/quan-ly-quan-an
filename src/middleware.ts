@@ -14,6 +14,17 @@ const guestPaths = ["/guest"];
 const onlyOwnerPaths = ["/manage/accounts"];
 const privatePaths = [...managePaths, ...guestPaths];
 const unAuthPaths = ["/login"];
+
+// const managePaths = ["/vi/manage", "/en/manage"];
+
+// const guestPaths = ["/vi/guest", "/en/guest"];
+
+// const onlyOwnerPaths = ["/vi/manage/accounts", "/en/manage/accounts"];
+
+// const privatePaths = [...managePaths, ...guestPaths];
+
+// const unAuthPaths = ["/vi/login", "/en/login"];
+
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
@@ -86,4 +97,5 @@ export function middleware(request: NextRequest) {
 // See "Matching Paths" below to learn more
 export const config = {
     matcher: ["/manage/:path*", "/guest/:path*", "/login"],
+    // matcher: "/((?!api|trpc|_next|_vercel|.*\\..*).*)",
 };
