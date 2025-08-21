@@ -232,3 +232,16 @@ export const OrderStatusIcon = {
     [OrderStatus.Delivered]: Truck,
     [OrderStatus.Paid]: HandCoins,
 };
+
+export const wrapServerApi = async <T>(fn: () => Promise<T>) => {
+    let result = null;
+    try {
+        result = await fn();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+        if (error.digest?.includes("NEXT_REDIRECT")) {
+            throw error;
+        }
+    }
+    return result;
+};
