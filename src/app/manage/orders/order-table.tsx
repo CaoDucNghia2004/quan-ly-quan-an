@@ -60,7 +60,7 @@ import {
 import { useTableListQuery } from "@/queries/useTable";
 
 import { toast } from "sonner";
-import { useAppContext } from "@/components/app-provider";
+import { useAppStore } from "@/components/app-provider";
 
 export const OrderTableContext = createContext({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -92,7 +92,9 @@ const initFromDate = startOfDay(new Date());
 const initToDate = endOfDay(new Date());
 export default function OrderTable() {
     const searchParam = useSearchParams();
-    const { socket } = useAppContext();
+
+    const socket = useAppStore((state) => state.socket);
+
     const [openStatusFilter, setOpenStatusFilter] = useState(false);
     const [fromDate, setFromDate] = useState(initFromDate);
     const [toDate, setToDate] = useState(initToDate);

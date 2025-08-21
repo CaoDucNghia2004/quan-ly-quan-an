@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppContext } from "@/components/app-provider";
+import { useAppStore } from "@/components/app-provider";
 import { Badge } from "@/components/ui/badge";
 import { OrderStatus } from "@/constants/type";
 
@@ -15,7 +15,8 @@ import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
 export default function OrdersCart() {
-    const { socket } = useAppContext();
+    // const { socket } = useAppContext();
+    const socket = useAppStore((state) => state.socket);
     const { data, refetch } = useGuestGetOrderListQuery();
     const orders = useMemo(() => data?.payload.data ?? [], [data]);
 
