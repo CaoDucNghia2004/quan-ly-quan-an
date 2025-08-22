@@ -2,10 +2,15 @@ import dishApiRequest from "@/apiRequests/dish";
 import { formatCurrency } from "@/lib/utils";
 import { DishListResType } from "@/schemaValidations/dish.schema";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 
-export default async function Home() {
+export default async function Home({ params }: { params: { locale: string } }) {
+    const { locale } = await params;
+
+    // Enable static rendering
+    setRequestLocale(locale);
     const t = await getTranslations("HomePage");
     let dishList: DishListResType["data"] = [];
     try {

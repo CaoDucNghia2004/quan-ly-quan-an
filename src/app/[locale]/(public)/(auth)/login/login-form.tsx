@@ -16,13 +16,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLoginMutation } from "@/queries/useAuth";
 import { toast } from "sonner";
 import { generateSocketInstance, handleErrorApi } from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-
 import envConfig from "@/config";
-import Link from "next/link";
+import { Link, useRouter } from "@/i18n/routing";
 import { useAppStore } from "@/components/app-provider";
 import { useTranslations } from "next-intl";
+
+import SearchParamsLoader, {
+    useSearchParamsLoader,
+} from "@/components/search-params-loader";
 
 const getOauthGoogleUrl = () => {
     const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -45,10 +47,11 @@ const googleOauthUrl = getOauthGoogleUrl();
 
 export default function LoginForm() {
     const t = useTranslations("Login");
+    const { searchParams, setSearchParams } = useSearchParamsLoader();
     const loginMutation = useLoginMutation();
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const clearTokens = searchParams.get("clearTokens");
+    // const searchParams = useSearchParams();
+    const clearTokens = searchParams?.get("clearTokens");
     // const { setRole, setSocket } = useAppContext();
     const setSocket = useAppStore((state) => state.setSocket);
     const setRole = useAppStore((state) => state.setRole);
@@ -87,6 +90,7 @@ export default function LoginForm() {
 
     return (
         <Card className="mx-auto max-w-sm w-full">
+            <SearchParamsLoader onParamsReceived={setSearchParams} />
             <CardHeader>
                 <CardTitle className="text-2xl">{t("title")}</CardTitle>
                 <CardDescription>

@@ -12,7 +12,7 @@ import {
 } from "@/schemaValidations/guest.schema";
 
 import { useParams, useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { useGuestLoginMutation } from "@/queries/useGuest";
 import { useEffect } from "react";
 import { generateSocketInstance, handleErrorApi } from "@/lib/utils";

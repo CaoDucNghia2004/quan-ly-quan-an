@@ -9,6 +9,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 // import { getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { setRequestLocale } from "next-intl/server";
 
 const fontSans = FontSans({
     subsets: ["latin"],
@@ -20,18 +21,24 @@ export const metadata: Metadata = {
     description: "The best restaurant in the world",
 };
 
+export function generateStaticParams() {
+    return routing.locales.map((locale) => ({ locale }));
+}
+
 export default async function RootLayout({
     children,
     params,
 }: Readonly<{
     children: React.ReactNode;
-    params: Promise<{ locale: string }>;
+    params: { locale: string };
 }>) {
-    // const locale = await getLocale();
     const { locale } = await params;
     if (!hasLocale(routing.locales, locale)) {
         notFound();
     }
+    setRequestLocale(locale);
+    // const locale = await getLocale();
+
     return (
         <html lang={locale} suppressHydrationWarning>
             <body

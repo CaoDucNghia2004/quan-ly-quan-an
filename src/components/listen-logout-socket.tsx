@@ -1,7 +1,7 @@
 import { handleErrorApi } from "@/lib/utils";
 import { useLogoutMutation } from "@/queries/useAuth";
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
+
+import { usePathname, useRouter } from "@/i18n/routing";
 import { useEffect } from "react";
 import { useAppStore } from "./app-provider";
 

@@ -1,4 +1,5 @@
 import envConfig from "@/config";
+// import { redirect } from "@/i18n/routing";
 import {
     getAccessTokenFromLocalStorage,
     normalizePath,

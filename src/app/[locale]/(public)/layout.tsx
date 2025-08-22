@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Menu, Package2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,15 +10,29 @@ import {
 } from "@/components/ui/sheet";
 import DarkModeToggle from "@/components/dark-mode-toggle";
 import NavItems from "@/app/[locale]/(public)/nav-items";
-import { SwitchLanguage } from "@/components/switch-language";
+import SwitchLanguage from "@/components/switch-language";
+import { Link } from "@/i18n/routing";
+import { setRequestLocale } from "next-intl/server";
+import { hasLocale } from "next-intl";
+import { notFound } from "next/navigation";
+import { routing } from "@/i18n/routing";
 
-export default function Layout({
+export default async function Layout({
     children,
     modal,
+    params,
 }: Readonly<{
     children: React.ReactNode;
     modal: React.ReactNode;
+    params: { locale: string };
 }>) {
+    const { locale } = await params;
+    if (!hasLocale(routing.locales, locale)) {
+        notFound();
+    }
+
+    // Enable static rendering
+    setRequestLocale(locale);
     return (
         <div className="flex min-h-screen w-full flex-col relative">
             <header className="sticky z-20 top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -53,7 +66,7 @@ export default function Layout({
                         </SheetHeader>
                         <nav className="grid gap-6 text-lg font-medium">
                             <Link
-                                href="#"
+                                href="/"
                                 className="flex items-center gap-2 text-lg font-semibold"
                             >
                                 <Package2 className="h-6 w-6" />

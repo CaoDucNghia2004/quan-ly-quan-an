@@ -9,7 +9,7 @@ import Quantity from "./quantity";
 import { useMemo, useState } from "react";
 import { GuestCreateOrdersBodyType } from "@/schemaValidations/guest.schema";
 import { useGuestOrderMutation } from "@/queries/useGuest";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { DishStatus } from "@/constants/type";
 
 export default function MenuOrder() {

@@ -6,8 +6,9 @@ import { cn, handleErrorApi } from "@/lib/utils";
 import { useLogoutMutation } from "@/queries/useAuth";
 import { RoleType } from "@/types/jwt.types";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+// import { Link } from "@/i18n/routing";
+// import { useRouter } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 
 import {
     AlertDialog,
