@@ -5,25 +5,29 @@ import { Role } from "./constants/type";
 import jwt from "jsonwebtoken";
 import { TokenPayload } from "@/types/jwt.types";
 
+import createMiddleware from "next-intl/middleware";
+import { routing } from "./i18n/routing";
+export default createMiddleware(routing);
+
 const decodeToken = (token: string) => {
     return jwt.decode(token) as TokenPayload;
 };
 
-const managePaths = ["/manage"];
-const guestPaths = ["/guest"];
-const onlyOwnerPaths = ["/manage/accounts"];
-const privatePaths = [...managePaths, ...guestPaths];
-const unAuthPaths = ["/login"];
-
-// const managePaths = ["/vi/manage", "/en/manage"];
-
-// const guestPaths = ["/vi/guest", "/en/guest"];
-
-// const onlyOwnerPaths = ["/vi/manage/accounts", "/en/manage/accounts"];
-
+// const managePaths = ["/manage"];
+// const guestPaths = ["/guest"];
+// const onlyOwnerPaths = ["/manage/accounts"];
 // const privatePaths = [...managePaths, ...guestPaths];
+// const unAuthPaths = ["/login"];
 
-// const unAuthPaths = ["/vi/login", "/en/login"];
+const managePaths = ["/vi/manage", "/en/manage"];
+
+const guestPaths = ["/vi/guest", "/en/guest"];
+
+const onlyOwnerPaths = ["/vi/manage/accounts", "/en/manage/accounts"];
+
+const privatePaths = [...managePaths, ...guestPaths];
+
+const unAuthPaths = ["/vi/login", "/en/login"];
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
@@ -89,13 +93,16 @@ export function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL("/", request.url));
         }
     }
-
     // Trường hợp còn lại → cho phép đi tiếp
     return NextResponse.next();
 }
 
 // See "Matching Paths" below to learn more
 export const config = {
-    matcher: ["/manage/:path*", "/guest/:path*", "/login"],
-    // matcher: "/((?!api|trpc|_next|_vercel|.*\\..*).*)",
+    // matcher: ["/manage/:path*", "/guest/:path*", "/login"],
+    matcher: "/((?!api|trpc|_next|_vercel|.*\\..*).*)",
+    // matcher: [
+    //     "/",
+    //     "/(vi|en)/:path*",
+    // ],
 };
