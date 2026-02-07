@@ -34,7 +34,7 @@ export default function SwitchLanguage() {
                     const locale = params.locale as Locale;
                     const newPathname = pathname.replace(
                         `/${locale}`,
-                        `/${value}`
+                        `/${value}`,
                     );
                     const fullUrl = `${newPathname}?${searchParams?.toString()}`;
                     router.replace(fullUrl);

@@ -1,12 +1,16 @@
 import dishApiRequest from "@/apiRequests/dish";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, generateSlugUrl } from "@/lib/utils";
 import { DishListResType } from "@/schemaValidations/dish.schema";
 import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
 import { setRequestLocale } from "next-intl/server";
 
-export default async function Home({ params }: { params: { locale: string } }) {
+interface HomePageProps {
+    params: Promise<{ locale: string }>;
+}
+
+export default async function Home({ params }: HomePageProps) {
     const { locale } = await params;
 
     // Enable static rendering
@@ -53,7 +57,10 @@ export default async function Home({ params }: { params: { locale: string } }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
                     {dishList.map((dish) => (
                         <Link
-                            href={`/dishes/${dish.id}`}
+                            href={`/dishes/${generateSlugUrl({
+                                name: dish.name,
+                                id: dish.id,
+                            })}`}
                             className="flex gap-4 w-full"
                             key={dish.id}
                         >
